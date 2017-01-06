@@ -3,7 +3,7 @@ module Utils.Ops exposing (..)
 {-|
     Utility operators.
 
-@docs (?), (?=), (?!=), (|?>), (|??>), (??=)
+@docs (?), (?!), (?=), (?!=), (|?>), (|??>), (??=)
 -}
 
 
@@ -27,6 +27,36 @@ module Utils.Ops exposing (..)
         t
     else
         f
+
+
+{-|
+    Lazy version of ? operator for recursion or expensive functions that you don't want executed.
+
+    Usage:
+
+    fact : Int -> Int
+    fact n =
+        (n <= 1) ? (\_ -> 1, \_ -> n * (fact <| n - 1) )
+
+-}
+(?!) : Bool -> ( () -> a, () -> a ) -> a
+(?!) bool ( tf, ff ) =
+    if bool then
+        tf ()
+    else
+        ff ()
+
+
+
+-- case n of
+--     0 ->
+--         1
+--
+--     1 ->
+--         1
+--
+--     _ ->
+--         n * (fact <| n - 1)
 
 
 {-|

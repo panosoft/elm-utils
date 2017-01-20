@@ -12,6 +12,7 @@ you have to install this library directly from GitHub, e.g. via [elm-github-inst
 ## API
 
 * [Operators](#operators)
+* [Dict](#dict)
 * [Json](#json)
 * [Regex](#regex)
 * [Result](#result)
@@ -173,6 +174,39 @@ b =
 g : Result String Int
 g =
 	gr |??> (\num -> 10 * num) ??= -1
+```
+
+### Dict
+
+> Zip keys and values together into Dictionary.
+
+When length of keys != lenght of values then whichever runs out first will end the zip.
+
+```elm
+zip : List comparable -> List a -> Dict comparable a
+zip keys values
+```
+
+__Usage__
+
+```elm
+keys : String
+keys =
+	[ "a"
+	, "b"
+	, "c"
+	]
+
+values : Int
+values =
+	[ 1
+	, 2
+	, 3
+	]
+
+dict : Dict String Int
+dict =
+	zip keys values
 ```
 
 ### Json

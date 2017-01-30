@@ -13,7 +13,9 @@ you have to install this library directly from GitHub, e.g. via [elm-github-inst
 
 * [Operators](#operators)
 * [Dict](#dict)
+* [Error](#error)
 * [Json](#json)
+* [Log](#log)
 * [Regex](#regex)
 * [Result](#result)
 * [Tuple](#tuple)
@@ -209,6 +211,17 @@ dict =
 	zip keys values
 ```
 
+### Error
+
+> Error Types.
+
+```elm
+type ErrorType
+    = FatalError
+    | NonFatalError
+    | RetryableError
+```
+
 ### Json
 
 > Operator to allow stringing decoders together to construct a record via its constructor.
@@ -398,6 +411,20 @@ JD.decodeString
 	   <|| ("ages" := Json.decDict JD.string JD.int)
    )
    json
+```
+
+### Log
+
+> Log Level.
+
+```elm
+type LogLevel
+    = LogLevelFatal
+    | LogLevelError
+    | LogLevelWarn
+    | LogLevelInfo
+    | LogLevelDebug
+    | LogLevelTrace
 ```
 
 ### Regex

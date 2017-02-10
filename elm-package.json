@@ -1,5 +1,5 @@
 {
-    "version": "1.3.0",
+    "version": "1.4.0",
     "summary": "Utility functions for Elm programs",
     "repository": "https://github.com/panosoft/elm-utils.git",
     "license": "Unlicense",
@@ -9,6 +9,7 @@
     "exposed-modules": [
 		"Utils.Dict",
 		"Utils.Error",
+		"Utils.Func",
 		"Utils.Json",
 		"Utils.Log",
 		"Utils.Ops",

@@ -14,6 +14,7 @@ you have to install this library directly from GitHub, e.g. via [elm-github-inst
 * [Operators](#operators)
 * [Dict](#dict)
 * [Error](#error)
+* [Func](#func)
 * [Json](#json)
 * [Log](#log)
 * [Regex](#regex)
@@ -221,6 +222,54 @@ type ErrorType
     | NonFatalError
     | RetryableError
 ```
+
+### Func
+
+> Apply 2 params.
+
+```elm
+apply2 : a -> b -> (a -> b -> c) -> c
+apply2 p1 p2
+```
+
+__Usage__
+
+```elm
+log : number -> String -> String -> number
+log num prefix1 prefix2 =
+	Debug.log (prefix1 ++ prefix2) num
+
+nums : List number
+nums = List.map (apply2 "prefix1" "prefix2")
+	[ log 1
+	, log 2
+	]
+
+{-
+	nums = [1, 2]
+
+	Outputs to console:
+
+		prefix1prefix2: 1
+		prefix1prefix2: 2
+
+-}
+```
+
+> Apply 3 params.
+
+```elm
+apply3 : a -> b -> c -> (a -> b -> c -> d) -> d
+apply3 p1 p2 p3
+```
+
+> Apply 4 params.
+
+```elm
+apply4 : a -> b -> c -> d -> (a -> b -> c -> d -> e) -> e
+apply4 p1 p2 p3 p4
+```
+
 
 ### Json
 

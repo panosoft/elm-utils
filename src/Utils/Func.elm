@@ -3,11 +3,15 @@ module Utils.Func
         ( apply2
         , apply3
         , apply4
+        , compose2
+        , compose3
+        , compose4
+        , compose5
         )
 
 {-|
     Functional utilities functions.
-@docs apply2, apply3, apply4
+@docs apply2, apply3, apply4 , compose2 , compose3 , compose4 , compose5
 -}
 
 

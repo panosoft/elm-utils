@@ -229,7 +229,6 @@ type ErrorType
 
 ```elm
 apply2 : a -> b -> (a -> b -> c) -> c
-apply2 p1 p2
 ```
 
 __Usage__
@@ -256,20 +255,45 @@ nums = List.map (apply2 "prefix1" "prefix2")
 -}
 ```
 
-> Apply 3 params.
+> Apply 3 and 4 params.
 
 ```elm
 apply3 : a -> b -> c -> (a -> b -> c -> d) -> d
-apply3 p1 p2 p3
+apply4 : a -> b -> c -> d -> (a -> b -> c -> d -> e) -> e
 ```
 
-> Apply 4 params.
+> Compose where first function takes 2 parameters
 
 ```elm
-apply4 : a -> b -> c -> d -> (a -> b -> c -> d -> e) -> e
-apply4 p1 p2 p3 p4
+compose2 : (c -> d) -> (a -> b -> c) -> a -> b -> d
 ```
 
+__Usage__
+
+```elm
+add : number -> number -> number
+add a b =
+	a + b
+
+mult10 : number -> number
+mult10 x =
+	x * 10
+
+addMult10 : number -> number -> number
+addMult10 =
+	compose2 mult10 add
+
+x : number
+x =
+	addMult10 2 3 {- 60 -}
+```
+> Compose where first function takes 3, 4 and 5 parameters
+
+```elm
+compose3 : (d -> e) -> (a -> b -> c -> d) -> a -> b -> c -> e
+compose4 : (e -> f) -> (a -> b -> c -> d -> e) -> a -> b -> c -> d -> f
+compose5 : (f -> g) -> (a -> b -> c -> d -> e -> f) -> a -> b -> c -> d -> e -> g
+```
 
 ### Json
 

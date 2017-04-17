@@ -486,6 +486,120 @@ JD.decodeString
    json
 ```
 
+> Elm Result encoder
+
+Will create a JS object with either an `okay` key or an `error` key.
+
+```elm
+resultEncoder : (error -> JE.Value) -> (okay -> JE.Value) -> Result error okay -> JE.Value
+resultEncoder errorEncoder okayEncoder result
+```
+
+* `errorEncoder` is an encoder for the `error` type
+* `okayEncoder` is an encoder for the `okay` type
+
+__Usage__
+
+```elm
+import Json.Encode as JE exposing (..)
+
+type alias Thing =
+    { id : Int
+    , result : Result String Int
+    }
+
+
+thingEncoder : Thing -> JE.Value
+thingEncoder thing =
+    JE.object
+        [ ( "id", JE.int thing.id )
+        , ( "result", resultEncoder JE.string JE.int thing.result )
+        ]
+```
+
+> Elm Result decoder
+
+Expects a JS object with either an `okay` key or an `error` key.
+
+```elm
+resultDecoder : Decoder error -> Decoder okay -> Decoder (Result error okay)
+resultDecoder errorDecoder okayDecoder
+```
+
+* `errorDecoder` is an decoder for the `error` type
+* `okayDecoder` is an decoder for the `okay` type
+
+__Usage__
+
+```elm
+import Json.Decode as JD exposing (..)
+
+type alias Thing =
+    { id : Int
+    , result : Result String Int
+    }
+
+thingDecoder : Decoder Thing
+thingDecoder =
+    (JD.succeed Thing)
+        <|| (field "id" JD.int)
+        <|| (field "result" <| resultDecoder JD.string JD.int)
+```
+
+> Encode Elm Result
+
+Will create a JS object with either an `okay` key or an `error` key.
+
+```elm
+resultEncode : (error -> JE.Value) -> (okay -> JE.Value) -> Result error okay -> String
+resultEncode errorEncoder okayEncoder result
+```
+
+__Usage__
+
+```elm
+import Json.Encode as JE exposing (..)
+
+type alias MyResult =
+    Result String Int
+
+
+encodedErrorResult : String
+encodedErrorResult =
+    resultEncode JE.string JE.int <| Err "This is an error"
+
+
+encodedOkayResult : String
+encodedOkayResult =
+    resultEncode JE.string JE.int <| Ok 123
+```
+
+> Decode Elm Result
+
+Expects a JS object with either an `okay` key or an `error` key.
+
+```elm
+resultDecode : Decoder error -> Decoder okay -> String -> Result String (Result error okay)
+resultDecode = errorEncoder okayEncoder
+```
+
+__Usage__
+
+```elm
+type alias MyResult =
+    Result String Int
+
+
+decodedErrorResult : Result String MyResult
+decodedErrorResult =
+    resultDecode JD.string JD.int """{"error": "This is an error"}"""
+
+
+decodedOkayResult : Result String MyResult
+decodedOkayResult =
+    resultDecode JD.string JD.int """{"okay": 123}"""
+```
+
 ### Log
 
 > Log Level.

@@ -3,7 +3,7 @@ module Utils.Json exposing (..)
 {-|
     Utility JSON functions.
 
-@docs (///), (<||), decConvertDict, decDict, encDict, encMaybe
+@docs (///), (<||), decConvertDict, decDict, encDict, encMaybe, resultEncoder, resultDecoder, resultEncode, resultDecode
 -}
 
 import Dict exposing (..)
@@ -11,6 +11,7 @@ import Json.Decode as JD exposing (..)
 import Json.Encode as JE exposing (..)
 import Utils.Ops exposing (..)
 import Utils.Tuple exposing (..)
+import Utils.Func exposing (..)
 
 
 {-|
@@ -125,7 +126,7 @@ encDict keyEncoder valueEncoder dict =
 
 
 {-|
-    Convenience function for decoding a Dictionary WITH a value converstion function from a JS object of the following form:
+    Convenience function for decoding a Dictionary WITH a value conversion function from a JS object of the following form:
 
     {
         keys: [
@@ -195,3 +196,40 @@ decConvertDict valuesConverter keyDecoder valueDecoder =
 decDict : Decoder comparable -> Decoder value -> Decoder (Dict comparable value)
 decDict =
     decConvertDict identity
+
+
+{-| Elm Result encoder
+-}
+resultEncoder : (error -> JE.Value) -> (okay -> JE.Value) -> Result error okay -> JE.Value
+resultEncoder errorEncoder okayEncoder result =
+    result
+        |??> (\okay -> JE.object [ ( "okay", okayEncoder okay ) ])
+        ??= (\error -> JE.object [ ( "error", errorEncoder error ) ])
+
+
+{-| Elm Result decoder
+-}
+resultDecoder : Decoder error -> Decoder okay -> Decoder (Result error okay)
+resultDecoder errorDecoder okayDecoder =
+    (JD.maybe (field "okay" okayDecoder)
+        |> JD.andThen
+            (\maybeOkay ->
+                maybeOkay
+                    |?> (JD.succeed << Ok)
+                    ?= (field "error" errorDecoder |> JD.andThen (JD.succeed << Err))
+            )
+    )
+
+
+{-| Encode Elm Result
+-}
+resultEncode : (error -> JE.Value) -> (okay -> JE.Value) -> Result error okay -> String
+resultEncode =
+    compose3 (JE.encode 0) resultEncoder
+
+
+{-| Decode Elm Result
+-}
+resultDecode : Decoder error -> Decoder okay -> String -> Result String (Result error okay)
+resultDecode =
+    compose2 JD.decodeString resultDecoder

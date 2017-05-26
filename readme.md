@@ -17,6 +17,7 @@ you have to install this library directly from GitHub, e.g. via [elm-github-inst
 * [Func](#func)
 * [Json](#json)
 * [Log](#log)
+* [Record](#record)
 * [Regex](#regex)
 * [Result](#result)
 * [Tuple](#tuple)
@@ -613,6 +614,46 @@ type LogLevel
     | LogLevelDebug
     | LogLevelTrace
 ```
+
+### Record
+
+> Make a record into a comparable string for use as a key in a Dict
+
+```elm
+makeComparable : List (a -> String) -> a -> String
+makeComparable recordStringGetters record
+```
+
+__Usage__
+
+```elm
+
+import Utils.Record as Record
+
+type alias DbConnectionInfo =
+    { host : String
+    , port_ : Int
+    , database : String
+    , user : String
+    , password : String
+    , timeout : Int
+    }
+
+
+{-| make connection info comparable for Dictionaries
+-}
+makeComparable : DbConnectionInfo -> String
+makeComparable =
+    Record.makeComparable
+        [ .host
+        , toString << .port_
+        , .database
+        , .user
+        , .password
+        ]
+```
+
+`timeout` was left out on purpose in this example.
 
 ### Regex
 

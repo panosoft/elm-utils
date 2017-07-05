@@ -30,11 +30,11 @@ import Utils.Func exposing (..)
     userDecoder : Json.Decoder User
     userDecoder =
         Json.succeed User
-            <|| ("name" field string)
-            <|| ("age" field int)
-            <|| ("amount" field float)
+            <|| (field "name"  string)
+            <|| (field "age"  int)
+            <|| (field "amount"  float)
             <|| Json.succeed 12
-            <|| ("address" field addressDecoder)
+            <|| (field "address"  addressDecoder)
 -}
 (<||) : JD.Decoder (a -> b) -> JD.Decoder a -> JD.Decoder b
 (<||) =
@@ -57,11 +57,11 @@ import Utils.Func exposing (..)
     userDecoder : Json.Decoder User
     userDecoder =
         Json.succeed User
-            <|| ("name" field string)
-            <|| ("age" field int)
-            <|| (("amount" field float) /// 100)
+            <|| (field "name"  string)
+            <|| (field "age"  int)
+            <|| ((field "amount"  float) /// 100)
             <|| Json.succeed 12
-            <|| ("address" field addressDecoder)
+            <|| (field "address"  addressDecoder)
 -}
 (///) : JD.Decoder a -> a -> JD.Decoder a
 (///) decoder default =

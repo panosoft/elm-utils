@@ -1,12 +1,33 @@
-module Utils.Dict exposing (zip)
+module Utils.Dict
+    exposing
+        ( swap
+        , zip
+        )
 
 {-|
     Utility Dict functions.
 
-@docs zip
+@docs swap, zip
 -}
 
 import Dict exposing (..)
+import Utils.Ops exposing (..)
+
+
+{-| swap dictionary's keys and values - returns Err if values are NOT unique
+-}
+swap : Dict comparable comparable_ -> Result String (Dict comparable_ comparable)
+swap dict =
+    dict
+        |> Dict.toList
+        |> List.map (\( k, v ) -> ( v, k ))
+        |> Dict.fromList
+        |> (\newDict ->
+                (Dict.size newDict == Dict.size dict)
+                    ? ( Ok newDict
+                      , Err "Values are not unique"
+                      )
+           )
 
 
 {-|

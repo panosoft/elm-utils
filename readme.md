@@ -182,9 +182,16 @@ g =
 
 ### Dict
 
+> Swap keys with values. Returns Err if values are not unique.
+
+```elm
+swap : Dict comparable comparable_ -> Result String (Dict comparable_ comparable)
+swap dict
+```
+
 > Zip keys and values together into Dictionary.
 
-When length of keys != lenght of values then whichever runs out first will end the zip.
+When length of keys != length of values then whichever runs out first will end the zip.
 
 ```elm
 zip : List comparable -> List a -> Dict comparable a

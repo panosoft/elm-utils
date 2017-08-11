@@ -11,7 +11,7 @@ you have to install this library directly from GitHub, e.g. via [elm-github-inst
 
 ## API
 
-* [Operators](#operators)
+* [Ops](#operators)
 * [Dict](#dict)
 * [Error](#error)
 * [Func](#func)
@@ -20,6 +20,7 @@ you have to install this library directly from GitHub, e.g. via [elm-github-inst
 * [Record](#record)
 * [Regex](#regex)
 * [Result](#result)
+* [Task](#task)
 * [Tuple](#tuple)
 
 ### Operators
@@ -45,7 +46,19 @@ y : String
 y =
 	x == 1 ? ("one", "not one")
 ```
+> Lazy version of ? operator for recursion or expensive functions that you don't want executed.
 
+```elm
+(?!) : Bool -> ( () -> a, () -> a ) -> a
+(?!) bool ( tf, ff )
+```
+__Usage__
+
+```elm
+fact : Int -> Int
+fact n =
+	(n <= 1) ?! (\_ -> 1, \_ -> n * (fact <| n - 1) )
+```
 > Maybe with default operator.
 
 Simplify `Maybe.withDefault` syntax
@@ -68,9 +81,10 @@ y : Int
 y =
 	Nothing ?= -1
 ```
+
 > Lazy version of ?= operator. (Since Elm is eager).
 
-This is important if the default is a `Debug.crash`. You don't want it to be evaluated until it's needed. Since Elm is not lazy, we need to have
+This is important if the default is a `Debug.crash` (or any side-effect function). You don't want it to be evaluated until it's needed. Since Elm is not lazy, we need to have
 special version of this.
 
 ```elm
@@ -115,6 +129,205 @@ y =
 z : Int
 z =
 	x |?> (\num -> 10 * num) ?= 0
+```
+
+> Maybe.map combined with Maybe.withDefault (or |?> combined with ?=)
+
+This combines two operators with the error case first, i.e. the Nothing.
+
+```elm
+(|?->) : Maybe a -> ( b, a -> b ) -> b
+(|?->) ma ( vma, f )
+```
+
+__Usage__
+
+```elm
+x : Maybe Int
+x =
+    Nothing
+
+y : Int
+y =
+    x |?-> ( 0, \x -> x * 10 )
+```
+
+> Lazy version of (|?->)
+
+The lazy version for side-effect functions, i.e. Debug.log.
+
+```elm
+(|?!->) : Maybe a -> ( () -> b, a -> b ) -> b
+(|?!->) ma ( fma, f )
+```
+__Usage__
+
+```elm
+x : Maybe Int
+x =
+    Nothing
+
+y : Int
+y =
+    x |?!-> ( \_ -> Debug.crash "BUG: x must never be Nothing here!!!", \x -> x * 10 )
+
+z : Int
+z =
+    x
+        |?!->
+            ( \_ ->
+                Debug.log "using default for x"
+                    |> always 0
+            , \x -> x * 10
+            )
+```
+
+> Double version of (|?->)
+
+Same as (|?->) but used with `Maybe (Maybe a)` instead of just `Maybe a`.
+
+```elm
+(|?-->) : Maybe (Maybe a) -> ( b, b, a -> b ) -> b
+(|?-->) mma ( vmma, vma, f )
+```
+
+__Usage__
+
+```elm
+x : Maybe (Maybe Int)
+x =
+    Nothing
+
+y : Int
+y =
+    x |?--> ( 0, \x -> x * 10 )
+```
+
+> Lazy version of (|?-->)
+
+```elm
+(|?!-->) : Maybe (Maybe a) -> ( () -> b, a -> b ) -> b
+(|?!-->) mma ( fmma, f )
+```
+
+__Usage__
+
+```elm
+x : Maybe (Maybe Int)
+x =
+    Nothing
+
+y : Int
+y =
+    x
+        |?!-->
+            ( \_ -> Debug.crash "BUG: x must never be Nothing here!!!"
+            , \x -> x * 10
+            )
+
+z : Int
+z =
+    x
+        |?!-->
+            ( \_ ->
+                Debug.log "using default for x"
+                    |> always 0
+            , \x -> x * 10
+            )
+```
+
+> Triple version of (|?->)
+
+```elm
+(|?--->) : Maybe (Maybe (Maybe a)) -> ( b, a -> b ) -> b
+(|?--->) mmma ( vmmma, f )
+```
+
+
+
+> Lazy version of (|?--->)
+
+```elm
+(|?!--->) : Maybe (Maybe (Maybe a)) -> ( () -> b, a -> b ) -> b
+(|?!--->) mmma ( fmmma, f )
+```
+
+> (|?->) for 2-tuple of Maybe's
+
+Useful when 2 maybes need defaults.
+
+```elm
+(|?**>) : ( Maybe a, Maybe b ) -> ( c, c, ( a, b ) -> c ) -> c
+(|?**>) ( ma, mb ) ( va, vb, f )
+```
+
+__Usage__
+
+```elm
+x : Maybe Int
+x =
+    Just 1
+
+
+y : Maybe Int
+y =
+    Nothing
+
+
+z : Int
+z =
+    ( x, y ) |?**> ( 0, 0, \( x, y ) -> x + y )
+```
+
+> Lazy version of (|?\**>)
+
+Useful when 2 maybes must have defaults or must not be `Nothing`.
+
+```elm
+(|?!**>) : ( Maybe a, Maybe b ) -> ( () -> c, () -> c, ( a, b ) -> c ) -> c
+(|?!**>) ( ma, mb ) ( fa, fb, f )
+```
+
+__Usage__
+
+```elm
+bugMissing : String -> (a -> b)
+bugMissing missing =
+    (\_ -> Debug.crash ("BUG: " ++ missing ++ " missing"))
+
+
+x : Maybe Int
+x =
+    Just 1
+
+
+y : Maybe Int
+y =
+    Nothing
+
+
+z : Int
+z =
+	( x, y )
+        |?!**>
+            ( bugMissing "x"
+            , bugMissing "y"
+            , \( x, y ) -> x + y
+            )
+```
+
+> (|?->) for 3-tuple of Maybe's
+
+```elm
+(|?***>) : ( Maybe a, Maybe b, Maybe c ) -> ( d, d, d, ( a, b, c ) -> d ) -> d
+(|?***>) ( ma, mb, mc ) ( va, vb, vc, f )
+```
+
+> Lazy version of (|?\***>)
+
+```elm
+(|?!***>) : ( Maybe a, Maybe b, Maybe c ) -> ( () -> d, () -> d, () -> d, ( a, b, c ) -> d ) -> d
+(|?!***>) ( ma, mb, mc ) ( fa, fb, fc, f )
 ```
 
 > Result.map operator.
@@ -170,15 +383,67 @@ gr =
 	Ok 123
 
 -- b will be -1
-b : Result String Int
+b : Int
 b =
-	br |??> (\num -> 10 * num) ??= (\_ -> -1)
+    br |??> (\num -> 10 * num) ??= (\_ -> -1)
 
 -- g will be Ok 1230
 g : Result String Int
 g =
-	gr |??> (\num -> 10 * num) ??= -1
+    gr |??> (\num -> 10 * num)
 ```
+
+> Result.map combined with (??=) (or |??> combined with ??=)
+
+This combines two operators with the error case first.
+
+```elm
+(|??->) : Result a b -> ( a -> c, b -> c ) -> c
+(|??->) r ( fr, f )
+```
+
+__Usage__
+
+```elm
+br : Result String Int
+br =
+    Err "Bad Things Happened"
+
+-- b will be -1
+b : Int
+b =
+    br |??-> ( \_ -> -1, \num -> 10 * num )
+```
+
+> Double version of (|?->)
+
+```elm
+(|??-->) : Result a (Result b c) -> ( a -> d, b -> d, c -> d ) -> d
+(|??-->) rr ( frr, fr, f )
+```
+
+__Usage__
+
+```elm
+crash : String -> (a -> b)
+crash error =
+    (\_ -> Debug.crash error)
+
+br : Result String (Result String Int)
+br =
+    Ok <| Err "Bad Things Happened"
+
+-- b will be -1
+b : Int
+b =
+	br
+        |??-->
+            ( crash "fatal error"
+            , \_ -> -1
+            , \num -> 10 * num
+            )
+```
+
 
 ### Dict
 
@@ -794,6 +1059,26 @@ results =
 oksOnly : List String
 oksOnly =
 	filterOk results
+```
+
+### Task
+
+> Exectute a list of Tasks from left to right sequentially
+until one succeeds at which point processing of the list is terminated.
+
+```elm
+untilSuccess : x -> List (Task x a) -> Task x a
+untilSuccess failureValue tasks
+```
+
+If all tasks fail then the `failureValue` is the result of the combined Task.
+
+__Usage__
+
+```elm
+tasks : Task String Int
+tasks =
+    untilSuccess "None succeeded" [ Task.fail "nope", Task.succeed 1, Task.fail "never gets executed", Task.succeed 2 ]
 ```
 
 ### Tuple

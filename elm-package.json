@@ -1,5 +1,5 @@
 {
-    "version": "2.3.0",
+    "version": "2.4.0",
     "summary": "Utility functions for Elm programs",
     "repository": "https://github.com/panosoft/elm-utils.git",
     "license": "Unlicense",
@@ -16,6 +16,7 @@
 		"Utils.Record",
 		"Utils.Regex",
 		"Utils.Result",
+		"Utils.Task",
 		"Utils.Tuple"
 	],
     "dependencies": {

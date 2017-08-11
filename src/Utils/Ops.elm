@@ -3,23 +3,23 @@ module Utils.Ops exposing (..)
 {-|
     Utility operators.
 
-@docs (?), (?!), (?=), (?!=), (|?>), (|??>), (??=)
+Boolean:
+@docs (?), (?!)
+
+Maybe:
+@docs (?=), (?!=), (|?>)
+@docs (|?->), (|?!->), (|?-->), (|?!-->), (|?-->), (|?!-->), (|?--->), (|?!--->)
+@docs (|?**>), (|?!**>), (|?***>), (|?!***>)
+
+Result:
+@docs (|??>), (??=)
+@docs (|??->), (|??-->)
 -}
 
+-- Boolean
 
-{-|
-    Inline if operator.
 
-    Usage:
-
-    x : Int
-    x =
-        2
-
-    -- y will be "not one"
-    y : String
-    y =
-        x == 1 ? ("one", "not one")
+{-| Inline if operator
 -}
 (?) : Bool -> ( a, a ) -> a
 (?) bool ( t, f ) =
@@ -29,15 +29,7 @@ module Utils.Ops exposing (..)
         f
 
 
-{-|
-    Lazy version of ? operator for recursion or expensive functions that you don't want executed.
-
-    Usage:
-
-    fact : Int -> Int
-    fact n =
-        (n <= 1) ? (\_ -> 1, \_ -> n * (fact <| n - 1) )
-
+{-| Lazy version of ? operator for recursion or expensive functions that you don't want executed.
 -}
 (?!) : Bool -> ( () -> a, () -> a ) -> a
 (?!) bool ( tf, ff ) =
@@ -48,49 +40,17 @@ module Utils.Ops exposing (..)
 
 
 
--- case n of
---     0 ->
---         1
---
---     1 ->
---         1
---
---     _ ->
---         n * (fact <| n - 1)
+-- Maybe
 
 
-{-|
-    Maybe with default operator
-
-    Usage:
-
-    -- x will be 1
-    x : Int
-    x =
-        Just 1 ?= -1
-
-    -- y will be -1
-    y : Int
-    y =
-        Nothing ?= -1
+{-| Maybe with default operator
 -}
 (?=) : Maybe a -> a -> a
 (?=) =
     flip Maybe.withDefault
 
 
-{-|
-    Lazy version of ?= operator. (Since Elm is eager)
-
-    Usage:
-
-    x : Maybe Int
-    x =
-        Nothing
-
-    crashIfNothing : Int
-    crashIfNothing =
-        x ?!= (\_ -> Debug.crash "x cannot be Nothing, must be a internal programming bug")
+{-| Lazy version of ?= operator. (Since Elm is eager)
 -}
 (?!=) : Maybe a -> (() -> a) -> a
 (?!=) maybe lazy =
@@ -102,81 +62,160 @@ module Utils.Ops exposing (..)
             lazy ()
 
 
-{-|
-    Maybe.map operator
-
-    Usage:
-
-    x : Maybe Int
-    x =
-        Just 1
-
-    -- y will be Just 10
-    y : Maybe Int
-    y =
-        x |?> (\num -> 10 * num)
-
-    -- z will be 10
-    z : Int
-    z =
-        x |?> (\num -> 10 * num) ?= 0
+{-| Maybe.map operator
 -}
 (|?>) : Maybe a -> (a -> b) -> Maybe b
 (|?>) =
     flip Maybe.map
 
 
-{-|
-    Result.map operator
+{-| Maybe.map combined with Maybe.withDefault (or |?> combined with ?=)
+-}
+(|?->) : Maybe a -> ( b, a -> b ) -> b
+(|?->) ma ( vma, f ) =
+    ma
+        |?> f
+        ?= vma
 
-    Usage:
 
-    br : Result String Int
-    br =
-        Err "Bad Things Happened"
+{-| Lazy version of (|?->)
+-}
+(|?!->) : Maybe a -> ( () -> b, a -> b ) -> b
+(|?!->) ma ( fma, f ) =
+    ma
+        |?> f
+        ?!= fma
 
-    gr : Result String Int
-    gr =
-        Ok 123
 
-    -- b will be Err "Bad Things Happened"
-    b : Result String Int
-    b =
-        br |??> (\num -> 10 * num)
+{-| Double version of (|?->)
+-}
+(|?-->) : Maybe (Maybe a) -> ( b, a -> b ) -> b
+(|?-->) mma ( vmma, f ) =
+    mma
+        |?> (\ma ->
+                ma
+                    |?> f
+                    ?= vmma
+            )
+        ?= vmma
 
-    -- g will be Ok 1230
-    g : Result String Int
-    g =
-        gr |??> (\num -> 10 * num)
+
+{-| Lazy version of (|?-->)
+-}
+(|?!-->) : Maybe (Maybe a) -> ( () -> b, a -> b ) -> b
+(|?!-->) mma ( fmma, f ) =
+    mma
+        |?> (\ma ->
+                ma
+                    |?> f
+                    ?!= fmma
+            )
+        ?!= fmma
+
+
+{-| Triple version of (|?->)
+-}
+(|?--->) : Maybe (Maybe (Maybe a)) -> ( b, a -> b ) -> b
+(|?--->) mmma ( vmmma, f ) =
+    mmma
+        |?> (\mma ->
+                mma
+                    |?--> ( vmmma, f )
+            )
+        ?= vmmma
+
+
+{-| Lazy version of (|?--->)
+-}
+(|?!--->) : Maybe (Maybe (Maybe a)) -> ( () -> b, a -> b ) -> b
+(|?!--->) mmma ( fmmma, f ) =
+    mmma
+        |?> (\mma ->
+                mma
+                    |?!--> ( fmmma, f )
+            )
+        ?!= fmmma
+
+
+{-| (|?->) for 2-tuple of Maybe's
+-}
+(|?**>) : ( Maybe a, Maybe b ) -> ( c, c, ( a, b ) -> c ) -> c
+(|?**>) ( ma, mb ) ( va, vb, f ) =
+    case ( ma, mb ) of
+        ( Just a, Just b ) ->
+            f ( a, b )
+
+        ( Nothing, _ ) ->
+            va
+
+        ( _, Nothing ) ->
+            vb
+
+
+{-| Lazy version of (|?**>)
+-}
+(|?!**>) : ( Maybe a, Maybe b ) -> ( () -> c, () -> c, ( a, b ) -> c ) -> c
+(|?!**>) ( ma, mb ) ( fa, fb, f ) =
+    case ( ma, mb ) of
+        ( Just a, Just b ) ->
+            f ( a, b )
+
+        ( Nothing, _ ) ->
+            fa ()
+
+        ( _, Nothing ) ->
+            fb ()
+
+
+{-| (|?->) for 3-tuple of Maybe's
+-}
+(|?***>) : ( Maybe a, Maybe b, Maybe c ) -> ( d, d, d, ( a, b, c ) -> d ) -> d
+(|?***>) ( ma, mb, mc ) ( va, vb, vc, f ) =
+    case ( ma, mb, mc ) of
+        ( Just a, Just b, Just c ) ->
+            f ( a, b, c )
+
+        ( Nothing, _, _ ) ->
+            va
+
+        ( _, Nothing, _ ) ->
+            vb
+
+        ( _, _, Nothing ) ->
+            vc
+
+
+{-| Lazy version of (|?***>)
+-}
+(|?!***>) : ( Maybe a, Maybe b, Maybe c ) -> ( () -> d, () -> d, () -> d, ( a, b, c ) -> d ) -> d
+(|?!***>) ( ma, mb, mc ) ( fa, fb, fc, f ) =
+    case ( ma, mb, mc ) of
+        ( Just a, Just b, Just c ) ->
+            f ( a, b, c )
+
+        ( Nothing, _, _ ) ->
+            fa ()
+
+        ( _, Nothing, _ ) ->
+            fb ()
+
+        ( _, _, Nothing ) ->
+            fc ()
+
+
+
+-- Result
+
+
+{-| Result.map operator
 -}
 (|??>) : Result a b -> (b -> c) -> Result a c
 (|??>) =
     flip Result.map
 
 
-{-|
-    Result default operator. This is different from Maybe.default since the Error Type may be different then the Ok Type in a Result.
+{-| Result default operator. This is different from Maybe.default since the Error Type may be different then the Ok Type in a Result.
     This is why a function is passed to convert the Error Value to a value of Ok Type.
-
-    Usage:
-
-    br : Result String Int
-    br =
-        Err "Bad Things Happened"
-
-    gr : Result String Int
-    gr =
-        Ok 123
-
-    -- b will be -1
-    b : Result String Int
-    b =
-        br |??> (\num -> 10 * num) ??= (\_ -> -1)
-
-    -- g will be Ok 1230
-    g : Result String Int
-    g =
-        gr |??> (\num -> 10 * num) ??= -1
 -}
 (??=) : Result err value -> (err -> value) -> value
 (??=) result f =
@@ -186,3 +225,21 @@ module Utils.Ops exposing (..)
 
         Err err ->
             f err
+
+
+{-| Result.map combined with (??=) (or |??> combined with ??=)
+-}
+(|??->) : Result a b -> ( a -> c, b -> c ) -> c
+(|??->) r ( fr, f ) =
+    r
+        |??> f
+        ??= fr
+
+
+{-| Double version of (|?->)
+-}
+(|??-->) : Result a (Result b c) -> ( a -> d, b -> d, c -> d ) -> d
+(|??-->) rr ( frr, fr, f ) =
+    rr
+        |??> (\r -> r |??-> ( fr, f ))
+        ??= frr

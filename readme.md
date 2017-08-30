@@ -528,9 +528,10 @@ nums = List.map (apply2 "prefix1" "prefix2")
 -}
 ```
 
-> Apply 3 and 4 params.
+> Apply 1, 3 and 4 params.
 
 ```elm
+apply : a -> (a -> b) -> b
 apply3 : a -> b -> c -> (a -> b -> c -> d) -> d
 apply4 : a -> b -> c -> d -> (a -> b -> c -> d -> e) -> e
 ```
@@ -560,12 +561,16 @@ x : number
 x =
 	addMult10 2 3 {- 60 -}
 ```
-> Compose where first function takes 3, 4 and 5 parameters
+> Compose where first function takes 1, 3, 4, 5, 6, 7 and 8 parameters
 
 ```elm
+compose : (b -> c) -> (a -> b) -> a -> c
 compose3 : (d -> e) -> (a -> b -> c -> d) -> a -> b -> c -> e
 compose4 : (e -> f) -> (a -> b -> c -> d -> e) -> a -> b -> c -> d -> f
 compose5 : (f -> g) -> (a -> b -> c -> d -> e -> f) -> a -> b -> c -> d -> e -> g
+compose6 : (g -> h) -> (a -> b -> c -> d -> e -> f -> g) -> a -> b -> c -> d -> e -> f -> h
+compose7 : (h -> i) -> (a -> b -> c -> d -> e -> f -> g -> h) -> a -> b -> c -> d -> e -> f -> g -> i
+compose8 : (i -> j) -> (a -> b -> c -> d -> e -> f -> g -> h -> i) -> a -> b -> c -> d -> e -> f -> g -> h -> j
 ```
 
 ### Json
@@ -1079,6 +1084,39 @@ __Usage__
 tasks : Task String Int
 tasks =
     untilSuccess "None succeeded" [ Task.fail "nope", Task.succeed 1, Task.fail "never gets executed", Task.succeed 2 ]
+```
+
+> Conditional Task.andThen
+
+```elm
+andThenIf : Bool -> ( a -> Task x b, a -> Task x b ) -> Task x a -> Task x b
+andThenIf cond ( tf, ff )
+```
+
+This function helps reduces code clutter (by 2 lines).
+
+__Usage__
+
+```elm
+with : Bool -> Task String ()
+with flag =
+    Task.succeed ()
+        |> Task.andThen (\_ -> Task.succeed ())
+        |> andThenIf flag
+            ( \_ -> Task.succeed ()
+            , always <| Task.fail "flag not set"
+            )
+
+without : Bool -> Task String ()
+without flag =
+    Task.succeed ()
+        |> Task.andThen (\_ -> Task.succeed ())
+        |> Task.andThen
+            (flag
+                ? ( \_ -> Task.succeed ()
+                  , always <| Task.fail "flag not set"
+                  )
+            )
 ```
 
 ### Tuple

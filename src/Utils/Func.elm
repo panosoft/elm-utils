@@ -1,25 +1,37 @@
 module Utils.Func
     exposing
-        ( apply2
+        ( apply
+        , apply2
         , apply3
         , apply4
+        , compose
         , compose2
         , compose3
         , compose4
         , compose5
+        , compose6
+        , compose7
+        , compose8
         )
 
 {-|
     Functional utilities functions.
-@docs apply2, apply3, apply4 , compose2 , compose3 , compose4 , compose5
+@docs apply, apply2, apply3, apply4 , compose, compose2 , compose3 , compose4 , compose5, compose6, compose7, compose8
 -}
+
+
+{-| Apply 1 params.
+-}
+apply : a -> (a -> b) -> b
+apply p1 =
+    (|>) p1
 
 
 {-| Apply 2 params.
 -}
 apply2 : a -> b -> (a -> b -> c) -> c
 apply2 p1 p2 =
-    (|>) p1 >> (|>) p2
+    apply p1 >> (|>) p2
 
 
 {-| Apply 3 params.
@@ -36,11 +48,18 @@ apply4 p1 p2 p3 p4 =
     apply3 p1 p2 p3 >> (|>) p4
 
 
+{-| Compose where first function takes 1 parameters
+-}
+compose : (b -> c) -> (a -> b) -> a -> c
+compose f2 f1 =
+    (<<) f2 f1
+
+
 {-| Compose where first function takes 2 parameters
 -}
 compose2 : (c -> d) -> (a -> b -> c) -> a -> b -> d
 compose2 f2 f1 a =
-    (<<) f2 <| f1 a
+    compose f2 <| f1 a
 
 
 {-| Compose where first function takes 3 parameters
@@ -62,3 +81,24 @@ compose4 f2 f1 a =
 compose5 : (f -> g) -> (a -> b -> c -> d -> e -> f) -> a -> b -> c -> d -> e -> g
 compose5 f2 f1 a =
     compose4 f2 <| f1 a
+
+
+{-| Compose where first function takes 6 parameters
+-}
+compose6 : (g -> h) -> (a -> b -> c -> d -> e -> f -> g) -> a -> b -> c -> d -> e -> f -> h
+compose6 f2 f1 a =
+    compose5 f2 <| f1 a
+
+
+{-| Compose where first function takes 7 parameters
+-}
+compose7 : (h -> i) -> (a -> b -> c -> d -> e -> f -> g -> h) -> a -> b -> c -> d -> e -> f -> g -> i
+compose7 f2 f1 a =
+    compose6 f2 <| f1 a
+
+
+{-| Compose where first function takes 8 parameters
+-}
+compose8 : (i -> j) -> (a -> b -> c -> d -> e -> f -> g -> h -> i) -> a -> b -> c -> d -> e -> f -> g -> h -> j
+compose8 f2 f1 a =
+    compose7 f2 <| f1 a

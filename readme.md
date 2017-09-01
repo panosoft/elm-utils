@@ -17,6 +17,7 @@ you have to install this library directly from GitHub, e.g. via [elm-github-inst
 * [Func](#func)
 * [Json](#json)
 * [Log](#log)
+* [Match](#match)
 * [Record](#record)
 * [Regex](#regex)
 * [Result](#result)
@@ -59,6 +60,35 @@ fact : Int -> Int
 fact n =
 	(n <= 1) ?! (\_ -> 1, \_ -> n * (fact <| n - 1) )
 ```
+
+> Get item from List at index
+
+```elm
+(!!) : List a -> Int -> Maybe a
+(!!) list index
+```
+
+__Usage__
+
+```elm
+
+import Utils.Ops exposing(..)
+
+items : List String
+items =
+    [ "Mickey's gloves", "Goofy's shoes", "Dumbo's feather" ]
+
+
+first2 : List String -> ( String, String )
+first2 list =
+    ( list !! 0, list !! 1 )
+        |?!**>
+            ( \_ -> Debug.crash "missing first"
+            , \_ -> Debug.crash "missing second"
+            , identity
+            )
+```
+
 > Maybe with default operator.
 
 Simplify `Maybe.withDefault` syntax
@@ -279,7 +309,7 @@ z =
     ( x, y ) |?**> ( 0, 0, \( x, y ) -> x + y )
 ```
 
-> Lazy version of (|?\**>)
+> Lazy version of (|?\*\*>)
 
 Useful when 2 maybes must have defaults or must not be `Nothing`.
 
@@ -323,11 +353,25 @@ z =
 (|?***>) ( ma, mb, mc ) ( va, vb, vc, f )
 ```
 
-> Lazy version of (|?\***>)
+> Lazy version of (|?\*\*\*>)
 
 ```elm
 (|?!***>) : ( Maybe a, Maybe b, Maybe c ) -> ( () -> d, () -> d, () -> d, ( a, b, c ) -> d ) -> d
 (|?!***>) ( ma, mb, mc ) ( fa, fb, fc, f )
+```
+
+> (|?->) for 4-tuple of Maybe's
+
+```elm
+(|?****>) : ( Maybe a, Maybe b, Maybe c, Maybe d ) -> ( e, e, e, e, ( a, b, c, d ) -> e ) -> e
+(|?****>) ( ma, mb, mc, md ) ( va, vb, vc, vd, f )
+```
+
+> Lazy version of (|?\*\*\*\*>)
+
+```elm
+(|?!****>) : ( Maybe a, Maybe b, Maybe c, Maybe d ) -> ( () -> e, () -> e, () -> e, () -> e, ( a, b, c, d ) -> e ) -> e
+(|?!****>) ( ma, mb, mc, md ) ( fa, fb, fc, fd, f )
 ```
 
 > Result.map operator.
@@ -891,6 +935,86 @@ type LogLevel
     | LogLevelDebug
     | LogLevelTrace
 ```
+
+### Match
+
+> Extract 2 from submatch
+
+```elm
+extract2 : Match -> Maybe ( Maybe String, Maybe String )
+extract2 match
+```
+
+__Usage__
+
+```elm
+
+import Regex exposing(..)
+import Utils.Match exposing(..)
+
+str : String
+str =
+    "First second"
+
+
+parseStr : ( Maybe String, Maybe String )
+parseStr =
+    (str
+        |> find (AtMost 1) (regex "(\\w+)\\s+(\\w+)")
+        |> List.head
+    )
+        |?!->
+            ( \_ -> Debug.crash "no match"
+            , extract2
+            )
+        ?!= (\_ -> Debug.crash "2 submatches not found")
+```
+
+> Extract 1, 3 and 4 from submatch
+
+```elm
+extract1 : Match -> Maybe (Maybe String)
+extract3 : Match -> Maybe ( Maybe String, Maybe String, Maybe String )
+extract4 : Match -> Maybe ( Maybe String, Maybe String, Maybe String, Maybe String )
+```
+
+> Get 2 submatches (WILL CRASH IF 2 DON'T EXIST!!!!!!)
+
+```elm
+getSubmatches2 : Match -> ( String, String )
+getSubmatches2 match
+```
+
+__Usage__
+
+```elm
+
+import Regex exposing(..)
+import Utils.Match exposing(..)
+
+str : String
+str =
+    "First second"
+
+
+parseStr : ( String, String )
+parseStr =
+    (str
+        |> find (AtMost 1) (regex "(\\w+)\\s+(\\w+)")
+        |> List.head
+    )
+        |?> getSubmatches2
+        ?!= (\_ -> Debug.crash "no match")
+
+```
+> Get 1, 3 and 4 submatches (WILL CRASH IF DOESN'T EXIST!!!!!!)
+
+```elm
+getSubmatches1 : Match -> String
+getSubmatches3 : Match -> ( String, String, String )
+getSubmatches4 : Match -> ( String, String, String, String )
+```
+
 
 ### Record
 

@@ -6,10 +6,13 @@ module Utils.Ops exposing (..)
 Boolean:
 @docs (?), (?!)
 
+List:
+@docs (!!)
+
 Maybe:
 @docs (?=), (?!=), (|?>)
 @docs (|?->), (|?!->), (|?-->), (|?!-->), (|?-->), (|?!-->), (|?--->), (|?!--->)
-@docs (|?**>), (|?!**>), (|?***>), (|?!***>)
+@docs (|?**>), (|?!**>), (|?***>), (|?!***>), (|?****>), (|?!****>)
 
 Result:
 @docs (|??>), (??=)
@@ -37,6 +40,22 @@ Result:
         tf ()
     else
         ff ()
+
+
+
+-- List
+
+
+{-| get item at index
+-}
+(!!) : List a -> Int -> Maybe a
+(!!) list index =
+    (list == [])
+        ? ( Nothing
+          , list
+                |> List.drop index
+                |> List.head
+          )
 
 
 
@@ -201,6 +220,48 @@ Result:
 
         ( _, _, Nothing ) ->
             fc ()
+
+
+{-| (|?->) for 4-tuple of Maybe's
+-}
+(|?****>) : ( Maybe a, Maybe b, Maybe c, Maybe d ) -> ( e, e, e, e, ( a, b, c, d ) -> e ) -> e
+(|?****>) ( ma, mb, mc, md ) ( va, vb, vc, vd, f ) =
+    case ( ma, mb, mc, md ) of
+        ( Just a, Just b, Just c, Just d ) ->
+            f ( a, b, c, d )
+
+        ( Nothing, _, _, _ ) ->
+            va
+
+        ( _, Nothing, _, _ ) ->
+            vb
+
+        ( _, _, Nothing, _ ) ->
+            vc
+
+        ( _, _, _, Nothing ) ->
+            vd
+
+
+{-| Lazy version of (|?***>)
+-}
+(|?!****>) : ( Maybe a, Maybe b, Maybe c, Maybe d ) -> ( () -> e, () -> e, () -> e, () -> e, ( a, b, c, d ) -> e ) -> e
+(|?!****>) ( ma, mb, mc, md ) ( fa, fb, fc, fd, f ) =
+    case ( ma, mb, mc, md ) of
+        ( Just a, Just b, Just c, Just d ) ->
+            f ( a, b, c, d )
+
+        ( Nothing, _, _, _ ) ->
+            fa ()
+
+        ( _, Nothing, _, _ ) ->
+            fb ()
+
+        ( _, _, Nothing, _ ) ->
+            fc ()
+
+        ( _, _, _, Nothing ) ->
+            fd ()
 
 
 

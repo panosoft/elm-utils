@@ -6,7 +6,6 @@ module Utils.Regex exposing (..)
 @docs simpleReplacer, parametricReplacer, replace, replaceAll, replaceFirst, replaceSimple
 -}
 
-import String exposing (..)
 import Regex exposing (Regex, Match, regex, HowMany(All, AtMost))
 
 

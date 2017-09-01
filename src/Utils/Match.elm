@@ -9,7 +9,6 @@ module Utils.Match exposing (..)
 
 import Regex exposing (..)
 import Utils.Ops exposing (..)
-import Utils.List exposing (..)
 
 
 {-| extract 1 submatch

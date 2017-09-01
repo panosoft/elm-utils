@@ -1,5 +1,5 @@
 {
-    "version": "2.6.0",
+    "version": "2.6.1",
     "summary": "Utility functions for Elm programs",
     "repository": "https://github.com/panosoft/elm-utils.git",
     "license": "Unlicense",

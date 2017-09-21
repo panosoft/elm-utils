@@ -4,10 +4,11 @@
 
 ## Install
 
-### Elm
+You'll need [Grove](https://github.com/panosoft/elm-grove.git).
 
-Since the Elm Package Manager doesn't allow for Native code and most everything we write at Panoramic Software has some native code in it,
-you have to install this library directly from GitHub, e.g. via [elm-github-install](https://github.com/gdotdesign/elm-github-install) or some equivalent mechanism. It's just not worth the hassle of putting libraries into the Elm package manager until it allows native code.
+```
+grove install panosoft/elm-utils
+```
 
 ## API
 

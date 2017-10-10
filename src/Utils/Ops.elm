@@ -1,6 +1,7 @@
 module Utils.Ops exposing (..)
 
 {-|
+
     Utility operators.
 
 Boolean:
@@ -17,6 +18,8 @@ Maybe:
 Result:
 @docs (|??>), (??=)
 @docs (|??->), (|??-->)
+@docs (|??**>), (|??***>), (|??****>)
+
 -}
 
 -- Boolean
@@ -276,7 +279,7 @@ Result:
 
 
 {-| Result default operator. This is different from Maybe.default since the Error Type may be different then the Ok Type in a Result.
-    This is why a function is passed to convert the Error Value to a value of Ok Type.
+This is why a function is passed to convert the Error Value to a value of Ok Type.
 -}
 (??=) : Result err value -> (err -> value) -> value
 (??=) result f =
@@ -304,3 +307,57 @@ Result:
     rr
         |??> (\r -> r |??-> ( fr, f ))
         ??= frr
+
+
+{-| (|??->) for 2-tuple of Results
+-}
+(|??**>) : ( Result x a, Result x b ) -> ( x -> c, x -> c, ( a, b ) -> c ) -> c
+(|??**>) ( ra, rb ) ( fa, fb, f ) =
+    case ( ra, rb ) of
+        ( Ok a, Ok b ) ->
+            f ( a, b )
+
+        ( Err error, _ ) ->
+            fa error
+
+        ( _, Err error ) ->
+            fb error
+
+
+{-| (|??->) for 3-tuple of Results
+-}
+(|??***>) : ( Result x a, Result x b, Result x c ) -> ( x -> d, x -> d, x -> d, ( a, b, c ) -> d ) -> d
+(|??***>) ( ra, rb, rc ) ( fa, fb, fc, f ) =
+    case ( ra, rb, rc ) of
+        ( Ok a, Ok b, Ok c ) ->
+            f ( a, b, c )
+
+        ( Err error, _, _ ) ->
+            fa error
+
+        ( _, Err error, _ ) ->
+            fb error
+
+        ( _, _, Err error ) ->
+            fc error
+
+
+{-| (|??->) for 4-tuple of Results
+-}
+(|??****>) : ( Result x a, Result x b, Result x c, Result x d ) -> ( x -> e, x -> e, x -> e, x -> e, ( a, b, c, d ) -> e ) -> e
+(|??****>) ( ra, rb, rc, rd ) ( fa, fb, fc, fd, f ) =
+    case ( ra, rb, rc, rd ) of
+        ( Ok a, Ok b, Ok c, Ok d ) ->
+            f ( a, b, c, d )
+
+        ( Err error, _, _, _ ) ->
+            fa error
+
+        ( _, Err error, _, _ ) ->
+            fb error
+
+        ( _, _, Err error, _ ) ->
+            fc error
+
+        ( _, _, _, Err error ) ->
+            fd error

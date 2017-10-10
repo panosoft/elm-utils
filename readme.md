@@ -474,14 +474,14 @@ crash : String -> (a -> b)
 crash error =
     (\_ -> Debug.crash error)
 
-br : Result String (Result String Int)
-br =
+brr : Result String (Result String Int)
+brr =
     Ok <| Err "Bad Things Happened"
 
 -- b will be -1
 b : Int
 b =
-	br
+	brr
         |??-->
             ( crash "fatal error"
             , \_ -> -1
@@ -489,6 +489,51 @@ b =
             )
 ```
 
+> (|??->) for 2-tuple of Results
+
+```elm
+(|??**>) : ( Result x a, Result x b ) -> ( x -> c, x -> c, ( a, b ) -> c ) -> c
+(|??**>) ( ra, rb ) ( fa, fb, f )
+```
+
+__Usage__
+
+```elm
+crash : String -> String -> x
+crash which error =
+    Debug.crash (which ++ " has the following error: " ++ error)
+
+ar : Result String Int
+ar =
+    Ok 10
+
+br : Result String Int
+br =
+    Ok 20
+
+-- sum will be 30
+sum : Int
+sum =
+    ( ar, br )
+        |??**>
+            ( crash "a"
+            , crash "b"
+            , \( a, b ) -> a + b
+            )
+```
+
+> (|??->) for 3-tuple of Results
+
+```elm
+(|??***>) : ( Result x a, Result x b, Result x c ) -> ( x -> d, x -> d, x -> d, ( a, b, c ) -> d ) -> d
+(|??***>) ( ra, rb, rc ) ( fa, fb, fc, f )
+```
+> (|??->) for 4-tuple of Results
+
+```elm
+(|??****>) : ( Result x a, Result x b, Result x c, Result x d ) -> ( x -> e, x -> e, x -> e, x -> e, ( a, b, c, d ) -> e ) -> e
+(|??****>) ( ra, rb, rc, rd ) ( fa, fb, fc, fd, f )
+```
 
 ### Dict
 

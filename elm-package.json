@@ -1,5 +1,5 @@
 {
-    "version": "2.6.1",
+    "version": "2.7.0",
     "summary": "Utility functions for Elm programs",
     "repository": "https://github.com/panosoft/elm-utils.git",
     "license": "Unlicense",
@@ -7,19 +7,19 @@
         "src"
     ],
     "exposed-modules": [
-		"Utils.Dict",
-		"Utils.Error",
-		"Utils.Func",
-		"Utils.Json",
-		"Utils.Log",
-		"Utils.Match",
-		"Utils.Ops",
-		"Utils.Record",
-		"Utils.Regex",
-		"Utils.Result",
-		"Utils.Task",
-		"Utils.Tuple"
-	],
+        "Utils.Dict",
+        "Utils.Error",
+        "Utils.Func",
+        "Utils.Json",
+        "Utils.Log",
+        "Utils.Match",
+        "Utils.Ops",
+        "Utils.Record",
+        "Utils.Regex",
+        "Utils.Result",
+        "Utils.Task",
+        "Utils.Tuple"
+    ],
     "dependencies": {
         "elm-lang/core": "5.0.0 <= v < 6.0.0"
     },

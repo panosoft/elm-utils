@@ -4,10 +4,10 @@ module Utils.Dict
         , zip
         )
 
-{-|
-    Utility Dict functions.
+{-| Utility Dict functions.
 
 @docs swap, zip
+
 -}
 
 import Dict exposing (..)
@@ -30,12 +30,9 @@ swap dict =
            )
 
 
-{-|
-    Zip list of keys and list of values into a Dictionary.
+{-| Zip keys and values together into Dictionary.
 
-    When length of keys != lenght of values then whichever runs out first will end the zip.
-
-    Usage:
+When length of keys != length of values then whichever runs out first will end the zip.
 
     keys : String
     keys =
@@ -54,6 +51,7 @@ swap dict =
     dict : Dict String Int
     dict =
         zip keys values
+
 -}
 zip : List comparable -> List a -> Dict comparable a
 zip keys values =

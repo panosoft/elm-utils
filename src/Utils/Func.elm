@@ -14,34 +14,58 @@ module Utils.Func
         , compose8
         )
 
-{-|
-    Functional utilities functions.
+{-| Functional utilities functions.
+
 @docs apply, apply2, apply3, apply4 , compose, compose2 , compose3 , compose4 , compose5, compose6, compose7, compose8
+
 -}
 
 
-{-| Apply 1 params.
+{-| Apply 1 params
 -}
 apply : a -> (a -> b) -> b
 apply p1 =
     (|>) p1
 
 
-{-| Apply 2 params.
+{-| Apply 2 params
+
+    log : number -> String -> String -> number
+    log num prefix1 prefix2 =
+        Debug.log (prefix1 ++ prefix2) num
+
+    nums : List number
+    nums =
+        List.map (apply2 "prefix1" "prefix2")
+            [ log 1
+            , log 2
+            ]
+
+
+    {-
+       nums = [1, 2]
+
+       Outputs to console:
+
+           prefix1prefix2: 1
+           prefix1prefix2: 2
+
+    -}
+
 -}
 apply2 : a -> b -> (a -> b -> c) -> c
 apply2 p1 p2 =
     apply p1 >> (|>) p2
 
 
-{-| Apply 3 params.
+{-| Apply 3 params
 -}
 apply3 : a -> b -> c -> (a -> b -> c -> d) -> d
 apply3 p1 p2 p3 =
     apply2 p1 p2 >> (|>) p3
 
 
-{-| Apply 4 params.
+{-| Apply 4 params
 -}
 apply4 : a -> b -> c -> d -> (a -> b -> c -> d -> e) -> e
 apply4 p1 p2 p3 p4 =
@@ -56,6 +80,26 @@ compose f2 f1 =
 
 
 {-| Compose where first function takes 2 parameters
+
+    add : number -> number -> number
+    add a b =
+        a + b
+
+    mult10 : number -> number
+    mult10 x =
+        x * 10
+
+    addMult10 : number -> number -> number
+    addMult10 =
+        compose2 mult10 add
+
+    x : number
+    x =
+        addMult10 2 3
+
+
+    {- 60 -}
+
 -}
 compose2 : (c -> d) -> (a -> b -> c) -> a -> b -> d
 compose2 f2 f1 a =

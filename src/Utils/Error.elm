@@ -5,18 +5,17 @@ module Utils.Error
         , errorTypeDecoder
         )
 
-{-|
-    Error Types.
+{-| Error Types and Encoding/Decoding
 
 @docs ErrorType, errorTypeEncoder, errorTypeDecoder
+
 -}
 
 import Json.Decode as JD exposing (field)
 import Json.Encode as JE
 
 
-{-|
-    Error Types.
+{-| Error Types
 -}
 type ErrorType
     = FatalError

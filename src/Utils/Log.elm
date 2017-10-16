@@ -1,14 +1,13 @@
 module Utils.Log exposing (..)
 
-{-|
-    Log Types.
+{-| Log Types.
 
 @docs LogLevel
+
 -}
 
 
-{-|
-    Logging Level.
+{-| Logging Level
 -}
 type LogLevel
     = LogLevelFatal

@@ -1,16 +1,13 @@
 module Utils.Result exposing (..)
 
-{-|
-    Utility Result functions.
+{-| Utility Result functions.
 
 @docs filterErr, filterOk
+
 -}
 
 
-{-|
-    Filter Errors from a List of Results.
-
-    Usage:
+{-| Filter Errors from a List of Results.
 
     results : Result String Int
     results =
@@ -19,10 +16,13 @@ module Utils.Result exposing (..)
         , Err "bad2"
         ]
 
+
     -- errorsOnly will be ["bad", "bad2"]
+
     errorsOnly : List String
     errorsOnly =
         filterErr results
+
 -}
 filterErr : List (Result error x) -> List error
 filterErr results =
@@ -39,10 +39,7 @@ filterErr results =
             []
 
 
-{-|
-    Filter Oks from a List of Results.
-
-    Usage:
+{-| Filter Oks from a List of Results.
 
     results : Result String Int
     results =
@@ -51,10 +48,13 @@ filterErr results =
         , Err "bad2"
         ]
 
+
     -- oksOnly will be [123]
+
     oksOnly : List String
     oksOnly =
         filterOk results
+
 -}
 filterOk : List (Result x value) -> List value
 filterOk results =
